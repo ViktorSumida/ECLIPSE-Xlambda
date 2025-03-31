@@ -28,11 +28,11 @@ BASELINE_DLAMDA = None
 
 class MainProgram:
 
-    def __init__(self, *, target, num_elements, profile, c1, c2, c3, c4, lambdaEff, raio, 
-                 intensidadeMaxima, tamanhoMatriz, raioStar, ecc, anom, tempStar, starspots, 
+    def __init__(self, *, target, num_elements, profile, c1, c2, c3, c4, lambdaEff, 
+                 intensidadeMaxima, raioStar, ecc, anom, tempStar, starspots, 
                  quantidade, lat, longt, r, semiEixoUA, massStar, plot_anim, periodo, 
                  anguloInclinacao, raioPlanetaRj, plot_graph, plot_star, 
-                 tempSpot):
+                 tempSpot, min_pixels, max_pixels, pixels_per_rp):
         self.target = target
         self.num_elements = num_elements
         self.profile = profile
@@ -41,9 +41,7 @@ class MainProgram:
         self.c3 = c3
         self.c4 = c4
         self.lambdaEff = lambdaEff
-        self.raio = raio
         self.intensidadeMaxima = intensidadeMaxima
-        self.tamanhoMatriz = tamanhoMatriz
         self.raioStar = raioStar
         self.ecc = ecc
         self.anom = anom
@@ -63,6 +61,9 @@ class MainProgram:
         self.plot_graph = plot_graph
         self.plot_star = plot_star
         self.tempSpot = tempSpot
+        self.min_pixels = min_pixels
+        self.max_pixels = max_pixels
+        self.pixels_per_rp = pixels_per_rp
 
         raioSun = self.raioStar
         raioStar = self.raioStar * 696340  # converting from solar radii to km
@@ -89,6 +90,12 @@ class MainProgram:
         planeta_ = Planeta(self.semiEixoUA, raioPlanJup, self.periodo, 
                            self.anguloInclinacao, self.ecc, self.anom, 
                            raioStar, massPlaneta)
+        
+        self.tamanhoMatriz, _, self.raio = self.calculateMatrixFromTransit(planeta_, self.min_pixels, self.max_pixels, self.pixels_per_rp)
+        print('Matrix size [px]: ', self.tamanhoMatriz)
+        print('Star radius size [px]: ', self.raio)
+        Nx = self.tamanhoMatriz
+        Ny = self.tamanhoMatriz
 
         stack_curvaLuz = None
         stack_tempoHoras = None
@@ -104,8 +111,6 @@ class MainProgram:
                 * intensidadeEstrelaLambda 
                 / intensidadeEstrelaLambdaMaximo
             )
-            Nx = self.tamanhoMatriz
-            Ny = self.tamanhoMatriz
 
             estrela_ = Star(self.raio, raioSun, intensidadeEstrelaLambdaNormalizada,
                                self.c1[count3], self.c2[count3],
@@ -266,3 +271,33 @@ class MainProgram:
             lambdaEff_nm,
             D_lambda
         )
+        
+        
+    def calculateMatrixFromTransit(self, planet, min_pixels, max_pixels, pixels_per_rp, margin=0.1):
+        """
+        Calculates the matrix size based on the stellar radius and desired resolution.
+
+        Parameters:
+            - planet: Planeta object (must contain raioPlanetaRstar)
+            - min_pixels: minimum allowed matrix size
+            - max_pixels: maximum allowed matrix size
+            - pixels_per_rp: desired pixels per planetary radius (e.g., 50)
+            - margin: extra space beyond the stellar disk (e.g., 0.1 for 10%)
+
+        Returns:
+            - Nx, Ny: matrix dimensions (square)
+            - star_radius_pixels: stellar radius in pixels
+        """
+        rp_rstar = planet.raioPlanetaRstar
+
+        # Calculate how many pixels per R★ are needed to achieve the desired pixels per Rp
+        pixels_per_rstar = pixels_per_rp / rp_rstar
+
+        # Clamp if necessary (not mandatory here, but for safety)
+        pixels_per_rstar = np.clip(pixels_per_rstar, min_pixels / 2, max_pixels / 2)
+
+        # Total matrix covers 2*R★ + margin
+        matrix_size = int(2 * pixels_per_rstar * (1 + margin))
+        matrix_size = int(np.clip(matrix_size, min_pixels, max_pixels))
+
+        return matrix_size, matrix_size, pixels_per_rstar

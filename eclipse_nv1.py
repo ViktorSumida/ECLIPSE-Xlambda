@@ -260,5 +260,3 @@ class Eclipse:
         N_points = int(np.ceil((total_time * 60) / interval_minutes))
 
         return N_points, interval_minutes, total_time
-
-
