@@ -52,7 +52,6 @@ Each simulation takes as input:
 | `raioPlanetaRj` | Planetary radius in Jupiter radii [R_J] |
 | `periodo`, `anguloInclinacao`, `semiEixoUA`, `ecc`, `anom` | Orbital parameters: period [days], inclination [deg], semi-major axis [AU], eccentricity, anomaly |
 | `starspots`, `quantidade`, `lat`, `longt`, `r` | Starspot configuration: enable spots, number of spots, their latitude/longitude, and radius (fraction of R★) |
-| `lambdaEff`, `num_elements` | Wavelengths (μm) and number of elements in the spectral grid |
 | `c1`, `c2`, `c3`, `c4` | Limb darkening coefficients (from 4-parameter law, e.g., ExoCTK) |
 | `plot_anim`, `plot_graph`, `plot_star` | Flags for animation, light curve plotting, and stellar image visualization |
 | `min_pixels`, `max_pixels`, `pixels_per_rp` | Controls for matrix resolution and size limits |
@@ -72,8 +71,9 @@ To generate the coefficients used in your simulations:
 2. Choose the **4-parameter law**
 3. Set the stellar parameters (Teff, log(g), metallicity, etc.)
 4. Export the result as `.txt`
-5. Make sure the file contains the coefficients `c1`, `c2`, `c3`, `c4` per wavelength
+5. Ensure the file includes the coefficients `c1`, `c2`, `c3`, `c4` per wavelength
 6. The simulation will read the values automatically
+7. Important note: If you'd like to use limb darkening coefficients derived from observational data, simply follow the same table format and input your own values for `c1`, `c2`, `c3`, `c4`, and `wave_eff`
 
 ---
 
