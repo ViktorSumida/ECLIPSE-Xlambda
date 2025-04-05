@@ -298,8 +298,11 @@ class MainProgram:
             cp -= 1
 
         pyplot.axis([-tempoTransito/5, tempoTransito/5, min_flux, 1.00005])
-        pyplot.xlabel("Time from transit center (hr)")
-        pyplot.ylabel("Relative flux")
+        pyplot.xlabel("$\\mathbf{Time\\;from\\;transit\\;center\\;(hr)}$", fontsize=19)
+        pyplot.ylabel("$\\mathbf{Relative\\;flux}$", fontsize=19)
+        pyplot.tick_params(axis="x", direction="in", labelsize=12, length=7, width=2, top=True)
+        pyplot.tick_params(axis="y", direction="in", labelsize=12, length=7, width=2, right=True)
+        pyplot.rcParams['axes.linewidth'] = 2  # Aumenta a espessura das bordas dos eixos
         #pyplot.legend()
         pyplot.tight_layout()
         pyplot.show()
